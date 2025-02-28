@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بطاقة مساعدة ذوي الاحتياجات الخاصة</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            text-align: right;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        .option {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #4CAF50;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        input {
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .info {
+            background-color: #e0f7fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .edit-form {
+            display: none; /* يتم إظهاره عند إدخال كلمة السر الصحيحة */
+        }
+
+        .password-prompt {
+            display: none; /* يتم إظهاره عند النقر على تعديل المعلومات */
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>بطاقة مساعدة ذوي الاحتياجات الخاصة</h1>
+    </header>
+
+    <main>
+        <!-- خيار مسح الباركود -->
+        <section class="option">
+            <h2>مسح الباركود</h2>
+            <form id="scanForm">
+                <label for="barcode">أدخل الباركود:</label>
+                <input type="text" id="barcode" name="barcode" placeholder="أدخل الباركود" required>
+                <button type="submit">عرض المعلومات</button>
+            </form>
+            <div id="barcodeInfo" class="info"></div>
+            <button id="editButton" disabled>تعديل المعلومات</button>
+        </section>
+
+        <!-- نافذة إدخال كلمة السر -->
+        <div id="passwordPrompt" class="password-prompt">
+            <label for="password">أدخل كلمة السر:</label>
+            <input type="password" id="password" placeholder="كلمة السر" required>
+            <button id="submitPassword">تأكيد</button>
+        </div>
+
+        <!-- واجهة التعديل -->
+        <section id="editForm" class="option edit-form">
+            <h2>تعديل المعلومات</h2>
+            <form id="updateForm">
+                <label for="editFullName">الاسم الثلاثي:</label>
+                <input type="text" id="editFullName" name="editFullName" placeholder="الاسم الكامل" required>
+
+                <label for="editAge">العمر:</label>
+                <input type="number" id="editAge" name="editAge" placeholder="العمر" required>
+
+                <label for="editPhoneNumber">الرقم:</label>
+                <input type="text" id="editPhoneNumber" name="editPhoneNumber" placeholder="رقم الهاتف" required>
+
+                <label for="editMapLink">رابط الموقع على خرائط جوجل:</label>
+                <input type="url" id="editMapLink" name="editMapLink" placeholder="رابط الموقع" required>
+
+                <label for="editEmail">البريد الإلكتروني:</label>
+                <input type="email" id="editEmail" name="editEmail" placeholder="البريد الإلكتروني" required>
+
+                <button type="submit">حفظ التغييرات</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>جميع الحقوق محفوظة &copy; 2023</p>
+    </footer>
+
+    <script>
+        // بيانات وهمية (يمكن استبدالها بـ localStorage)
+        let cards = JSON.parse(localStorage.getItem('cards')) || [];
+
+        // معالجة مسح الباركود
+        document.getElementById('scanForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const barcode = document.getElementById('barcode').value;
+            const card = cards.find(card => card.barcode === barcode);
+
+            if (card) {
+                document.getElementById('barcodeInfo').innerHTML = `
+                    <p><strong>الاسم:</strong> ${card.fullName}</p>
+                    <p><strong>العمر:</strong> ${card.age}</p>
+                    <p><strong>الرقم:</strong> ${card.phoneNumber}</p>
+                    <p><strong>الموقع:</strong> <a href="${card.mapLink}" target="_blank">رابط الموقع</a></p>
+                    <p><strong>البريد الإلكتروني:</strong> ${card.email}</p>
+                `;
+                document.getElementById('editButton').disabled = false; // تمكين زر التعديل
+            } else {
+                document.getElementById('barcodeInfo').innerHTML = `<p style="color: red;">لم يتم العثور على معلومات لهذا الباركود.</p>`;
+                document.getElementById('editButton').disabled = true; // تعطيل زر التعديل
+            }
+        });
+
+        // معالجة النقر على زر التعديل
+        document.getElementById('editButton').addEventListener('click', function () {
+            document.getElementById('passwordPrompt').style.display = 'block'; // إظهار نافذة كلمة السر
+        });
+
+        // معالجة إدخال كلمة السر
+        document.getElementById('submitPassword').addEventListener('click', function () {
+            const barcode = document.getElementById('barcode').value;
+            const card = cards.find(card => card.barcode === barcode);
+
+            if (card) {
+                const password = document.getElementById('password').value;
+
+                if (!card.password) {
+                    // إذا لم تكن هناك كلمة سر، يتم تعيينها لأول مرة
+                    card.password = password;
+                    localStorage.setItem('cards', JSON.stringify(cards));
+                    alert("تم تعيين كلمة السر بنجاح!");
+                } else if (card.password === password) {
+                    // إذا كانت كلمة السر صحيحة
+                    document.getElementById('passwordPrompt').style.display = 'none'; // إخفاء نافذة كلمة السر
+                    document.getElementById('editForm').style.display = 'block'; // إظهار واجهة التعديل
+
+                    // تعبئة حقول التعديل بالمعلومات الحالية
+                    document.getElementById('editFullName').value = card.fullName;
+                    document.getElementById('editAge').value = card.age;
+                    document.getElementById('editPhoneNumber').value = card.phoneNumber;
+                    document.getElementById('editMapLink').value = card.mapLink;
+                    document.getElementById('editEmail').value = card.email;
+                } else {
+                    alert("كلمة السر غير صحيحة!");
+                }
+            }
+        });
+
+        // معالجة حفظ التغييرات
+        document.getElementById('updateForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const barcode = document.getElementById('barcode').value;
+            const cardIndex = cards.findIndex(card => card.barcode === barcode);
+
+            if (cardIndex !== -1) {
+                cards[cardIndex] = {
+                    barcode,
+                    fullName: document.getElementById('editFullName').value,
+                    age: document.getElementById('editAge').value,
+                    phoneNumber: document.getElementById('editPhoneNumber').value,
+                    mapLink: document.getElementById('editMapLink').value,
+                    email: document.getElementById('editEmail').value,
+                    password: cards[cardIndex].password // الحفاظ على كلمة السر
+                };
+
+                localStorage.setItem('cards', JSON.stringify(cards));
+                alert("تم حفظ التغييرات بنجاح!");
+                document.getElementById('editForm').style.display = 'none'; // إخفاء واجهة التعديل
+            }
+        });
+    </script>
+</body>
+</html>
